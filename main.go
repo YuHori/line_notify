@@ -9,6 +9,8 @@ import (
     "encoding/json"
     "os"
     "fmt"
+    "math/rand"
+    "time"
 )
 
 type Bible struct {
@@ -21,7 +23,8 @@ type Scripture struct {
 }
 
 func main() {
-    accessToken := "<access_key>"
+    accessToken := "<secret_key>"
+    rand.Seed(time.Now().UnixNano())
 
     raw, err := ioutil.ReadFile("./bible.json")
     if err != nil {
@@ -32,41 +35,38 @@ func main() {
     var b Bible
     json.Unmarshal(raw, &b)
 
+    index := rand.Intn(len(b.Scriptures))
+
     counter := 0
     for _, sc := range b.Scriptures {
-        fmt.Println(sc.Title)
-        fmt.Println(sc.Desc)
+        if counter == index {
+            msg := sc.Title + "\n" + sc.Desc
+            URL := "https://notify-api.line.me/api/notify"
 
-        msg := sc.Title + "\n" + sc.Desc
-        URL := "https://notify-api.line.me/api/notify"
+            u, err := url.ParseRequestURI(URL)
+            if err != nil {
+                log.Fatal(err)
+            }
 
-        u, err := url.ParseRequestURI(URL)
-        if err != nil {
-            log.Fatal(err)
-        }
+            c := &http.Client{}
 
-        c := &http.Client{}
+            form := url.Values{}
+            form.Add("message", msg)
 
-        form := url.Values{}
-        form.Add("message", msg)
+            body := strings.NewReader(form.Encode())
 
-        body := strings.NewReader(form.Encode())
+            req, err := http.NewRequest("POST", u.String(), body)
+            if err != nil {
+                log.Fatal(err)
+            }
 
-        req, err := http.NewRequest("POST", u.String(), body)
-        if err != nil {
-            log.Fatal(err)
-        }
+            req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+            req.Header.Set("Authorization", "Bearer "+accessToken)
 
-        req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-        req.Header.Set("Authorization", "Bearer "+accessToken)
-
-        _, err = c.Do(req)
-        if err != nil {
-            log.Fatal(err)
-        }
-
-        if counter >= 5 {
-            break
+            _, err = c.Do(req)
+            if err != nil {
+                log.Fatal(err)
+            }
         }
         counter++
     }
