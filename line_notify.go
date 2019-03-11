@@ -26,7 +26,7 @@ func main() {
     accessToken := "<secret_key>"
     rand.Seed(time.Now().UnixNano())
 
-    raw, err := ioutil.ReadFile("./bible.json")
+    raw, err := ioutil.ReadFile("./bible_jp.json")
     if err != nil {
         fmt.Println(err.Error())
         os.Exit(1)
