@@ -17,9 +17,11 @@ rm -rf $RPM_BUILD_ROOT
 %install
 mkdir -p %{buildroot}/usr/bin/
 install -m 755 /usr/bin/line_notify %{buildroot}/usr/bin/line_notify
+install -m 755 /usr/etc/bible_jp.json %{buildroot}/usr/etc/bible_jp.json
 
 %files
 /usr/bin/line_notify
+/usr/etc/bible_jp.json
 
 %changelog
 # let skip this for now
